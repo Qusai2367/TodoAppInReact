@@ -1,0 +1,8 @@
+.effect {
+    transition: all 0.2s ease-in-out;
+}
+.effect:hover{
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+
