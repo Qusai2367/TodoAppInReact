@@ -12,50 +12,78 @@ import AddIcon from "@mui/icons-material/Add";
 //Compoenets
 import TodoCard from "./TodoCard";
 
+//Other
+import { TodosContext } from "../context/Todocontext";
+import { useState, useContext } from "react";
+import { v4 as uuidv4 } from "uuid";
 
-const todos = [
-    {
-        id: 1,
-        title: "Stay at Home",
-        details: "Stay in your home and be Safety",
-        isComplete: false,
-    },
-
-    {
-        id: 1,
-        title: "TabOut",
-        details: "Tab out of quotes, brackets, etc for Visual Studio Code.",
-        isComplete: false,
-    },
-
-    {
-        id: 1,
-        title: "Toggle Quotes",
-        details:
-            "cmd ' (ctrl ' on win/linux) will cycle the first quote pair found (from the start/end of the section) through the following sequence",
-        isComplete: true,
-    },
-];
 export default function ToDoList() {
+    const { todos, setTodos } = useContext(TodosContext);
+
+    const [titleInput, setTitleInput] = useState("");
+    const [displayTodosType, setDisplayTodoType] = useState("all");
+
+    const computedTodos = todos.filter((t) => {
+        return t.isComplete;
+    });
+
+    const notComputedTodos = todos.filter((t) => {
+        return !t.isComplete;
+    });
+
+    let todosToBeRender = todos;
+
+    if (displayTodosType === "Completed") {
+        todosToBeRender = computedTodos;
+    } else if (displayTodosType === "noneCompleted") {
+        todosToBeRender = notComputedTodos;
+    }
+
+    const todsJsx = (todosToBeRender || []).map((task) => (
+        <TodoCard key={task.id} todo={task} />
+    ));
+
+    function handleAddTask() {
+        const newTodo = {
+            id: uuidv4(),
+            title: titleInput,
+            details: "",
+            isComplete: true,
+        };
+
+        const updatedTodo = [...todos, newTodo];
+        setTodos(updatedTodo);
+        setTitleInput("");
+    }
+
+    function displayedType(e) {
+        setDisplayTodoType(e.target.value);
+    }
+
     return (
         <>
             <Container maxWidth="sm">
-                <Card sx={{ minWidth: 275 }}>
+                <Card sx={{ minWidth: 275, maxHeight:"80vh", overflow:"scroll" }}>
                     <CardContent>
                         <Typography variant="h2">My Task</Typography>
                         <Divider />
+
                         {/* State Task */}
                         <ToggleButtonGroup
-                            // value={alignment}
+                            value={displayTodosType}
                             exclusive
-                            // onChange={handleAlignment}
+                            onChange={displayedType}
                             style={{ marginTop: "30px" }}
                         >
-                            <ToggleButton value="left">All</ToggleButton>
-                            <ToggleButton value="center">Done</ToggleButton>
-                            <ToggleButton value="right"> Un Done</ToggleButton>
+                            <ToggleButton value="all">All</ToggleButton>
+                            <ToggleButton value="Completed">Done</ToggleButton>
+                            <ToggleButton value="noneCompleted">
+                                {" "}
+                                Un Done
+                            </ToggleButton>
                         </ToggleButtonGroup>
 
+                        {/* Add New Task Section */}
                         <Grid container spacing={2}>
                             <Grid size={8} style={{ marginTop: "20px" }}>
                                 <TextField
@@ -64,8 +92,13 @@ export default function ToDoList() {
                                     label="Add Your Task"
                                     type="text"
                                     variant="standard"
+                                    value={titleInput}
+                                    onChange={(e) => {
+                                        setTitleInput(e.target.value);
+                                    }}
                                 />
                             </Grid>
+
                             <Grid
                                 size={4}
                                 display="flex"
@@ -76,13 +109,16 @@ export default function ToDoList() {
                                     variant="contained"
                                     color="success"
                                     style={{ padding: "10px" }}
+                                    onClick={() => {
+                                        handleAddTask();
+                                    }}
                                 >
                                     <AddIcon /> Add
                                 </Button>
                             </Grid>
                         </Grid>
 
-                        <TodoCard />
+                        {todsJsx}
                     </CardContent>
                 </Card>
             </Container>

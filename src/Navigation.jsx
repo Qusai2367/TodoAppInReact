@@ -8,7 +8,9 @@ export default function Navigation() {
     return (
         <div>
             <Stack spacing={2} direction="row">
-                <Button variant="contained" value="All">All</Button>
+                <Button variant="contained" value="All">
+                    All
+                </Button>
                 <Button value="Done">Done</Button>
                 <Button value="Un Done">Un Done</Button>
             </Stack>
